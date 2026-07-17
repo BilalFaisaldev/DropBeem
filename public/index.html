@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DropBeam - Instant File Sharing & Live Clipboard over Wi-Fi</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Share files, images, videos, and text instantly between any devices on the same Wi-Fi network. No registration, no app install, secure and temporary.">
+  <meta name="keywords" content="file sharing, local sharing, wifi transfer, airforshare alternative, dropbeam, instant file transfer, clipboard sync, pwa share">
+  <link rel="canonical" href="https://dropbeam.com/">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://dropbeam.com/">
+  <meta property="og:title" content="DropBeam - Instant File and Clipboard Sharing over Wi-Fi">
+  <meta property="og:description" content="Drop files and sync clipboard in real-time with any device on your Wi-Fi network. Zero registration.">
+  <meta property="og:image" content="https://dropbeam.com/icons/icon.svg">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://dropbeam.com/">
+  <meta property="twitter:title" content="DropBeam - Instant Local Network Share">
+  <meta property="twitter:description" content="Fast, local temporary sharing for all your devices. Drop files and sync clipboard in real-time.">
+  <meta property="twitter:image" content="https://dropbeam.com/icons/icon.svg">
+
+  <!-- Google AdSense Verification & Auto Ads -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+
+  <!-- Structured Data (JSON-LD WebApp Schema) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "DropBeam",
+    "url": "https://dropbeam.com/",
+    "description": "Instant Wi-Fi file sharing and clipboard synchronization for local networks.",
+    "applicationCategory": "Utility",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript and WebSockets support."
+  }
+  </script>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#0d0e15">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+  <link rel="apple-touch-icon" href="/icons/icon.svg">
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Socket.io Client -->
+  <script src="/socket.io/socket.io.js"></script>
+  
+  <!-- QR Code Library -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Animated Background Elements -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+  <div class="bg-glow bg-glow-3"></div>
+
+  <!-- Sticky Floating Navigation Bar -->
+  <nav class="nav-bar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">
+        <i data-lucide="radio" class="logo-icon animate-pulse"></i>
+        <span>DropBeam</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="/" class="nav-link active">Home</a></li>
+        <li><a href="/about.html" class="nav-link">About</a></li>
+        <li><a href="/contact.html" class="nav-link">Contact</a></li>
+        <li><a href="/privacy.html" class="nav-link">Privacy Policy</a></li>
+        <li><a href="/terms.html" class="nav-link">Terms</a></li>
+        <li><a href="/disclaimer.html" class="nav-link">Disclaimer</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="btn-icon" id="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle light and dark mode">
+          <i data-lucide="sun"></i>
+        </button>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu">
+          <i data-lucide="menu"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="badge-hero">
+        <i data-lucide="sparkles" class="icon-sm"></i>
+        <span>100% Local Wi-Fi File Sharing</span>
+      </div>
+      <h2 class="hero-title">Instant Sharing Across <span>Any Device</span> On Your Wi-Fi</h2>
+      <p class="hero-subtitle">
+        DropBeam allows you to transfer files and synchronize your clipboard instantly over your local Wi-Fi network. No logins. No sizing limits. Zero registration needed. Works on iOS, Android, macOS, and Windows.
+      </p>
+      <div class="hero-ctas">
+        <a href="#sharing-app" class="btn btn-primary">
+          <i data-lucide="zap"></i>
+          <span>Launch Sharing Board</span>
+        </a>
+        <a href="#how-it-works" class="btn btn-secondary">
+          <span>See How It Works</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Google AdSense Compliant Banner Ad Placeholder (Top) -->
+  <div class="ad-placeholder ad-leaderboard">
+    <span class="ad-placeholder-text">Google AdSense - Compliant Top Banner Ad</span>
+    <span class="ad-placeholder-sub">Automatically fits sizes up to 970x90 Leaderboard</span>
+  </div>
+
+  <div class="app-container" id="sharing-app">
+    <!-- Active Sharing Dashboard Header -->
+    <header class="app-header glass">
+      <div class="header-left">
+        <div class="logo">
+          <i data-lucide="radio" class="logo-icon animate-pulse"></i>
+          <h1>DropBoard</h1>
+        </div>
+        <div class="status-badge" id="connection-status">
+          <span class="status-indicator offline"></span>
+          <span class="status-text">Connecting...</span>
+        </div>
+        
+        <!-- Active Room display widget -->
+        <div class="room-indicator glass-dark" id="active-room-display">
+          <i data-lucide="hash" class="room-hash-icon"></i>
+          <span class="room-name" id="current-room-name">public</span>
+          <button class="btn-room-switch" id="switch-room-trigger" title="Change Room">
+            <i data-lucide="git-branch"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="header-right">
+        <!-- Local IP Sharing Widget -->
+        <div class="sharing-widget glass-dark" id="url-widget">
+          <span class="widget-label">Wi-Fi Share Link:</span>
+          <span class="widget-url" id="server-url">Detecting URL...</span>
+          <button class="btn-icon" id="copy-url-btn" title="Copy URL" disabled>
+            <i data-lucide="copy"></i>
+          </button>
+        </div>
+        
+        <button class="btn btn-primary" id="open-qr-btn" disabled>
+          <i data-lucide="qr-code"></i>
+          <span>Scan to Connect</span>
+        </button>
+
+        <button class="btn-icon btn-mute" id="mute-toggle-btn" title="Toggle Sound" aria-label="Toggle sound alerts">
+          <i data-lucide="volume-2"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Connected Devices Panel -->
+    <section class="devices-section glass">
+      <div class="section-title">
+        <i data-lucide="smartphone"></i>
+        <h2>Active Devices in this Room</h2>
+        <span class="badge" id="device-count">0</span>
+      </div>
+      <div class="devices-list" id="devices-container">
+        <div class="device-card-skeleton">Detecting local network devices...</div>
+      </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Left Column: Live Clipboard & Chat -->
+      <section class="panel-section glass" id="left-panel">
+        <div class="panel-tabs">
+          <button class="tab-btn active" data-tab="clipboard" id="tab-btn-clipboard">
+            <i data-lucide="clipboard"></i>
+            <span>Live Clipboard</span>
+          </button>
+          <button class="tab-btn" data-tab="chat" id="tab-btn-chat">
+            <i data-lucide="message-square"></i>
+            <span>Room Chat</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Clipboard View -->
+        <div class="tab-content active" id="tab-clipboard">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i data-lucide="clipboard" class="accent-text-blue"></i>
+              <h2>Shared Clipboard</h2>
+            </div>
+            <div class="clipboard-actions">
+              <span class="sync-status" id="clipboard-sync-status">
+                <i data-lucide="refresh-cw" class="spin icon-sm"></i> Syncing...
+              </span>
+              <button class="btn btn-secondary btn-sm" id="copy-clipboard-btn" title="Copy text to clipboard">
+                <i data-lucide="copy"></i>
+                <span>Copy</span>
+              </button>
+              <button class="btn btn-secondary btn-sm" id="save-history-btn" title="Save to text history">
+                <i data-lucide="bookmark"></i>
+                <span>Save</span>
+              </button>
+              <button class="btn btn-outline btn-sm text-danger" id="clear-clipboard-btn" title="Clear text area">
+                <i data-lucide="trash-2"></i>
+                <span>Clear</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="textarea-wrapper">
+            <textarea id="clipboard-textarea" placeholder="Paste or type text here... It will sync instantly across all devices in this room."></textarea>
+            <div class="textarea-meta">
+              <span id="char-counter">0 characters</span>
+              <span class="keyboard-hint">Changes sync automatically</span>
+            </div>
+          </div>
+
+          <!-- History Subsection -->
+          <div class="history-container">
+            <h3 class="subsection-title">
+              <i data-lucide="history"></i>
+              <span>Text History</span>
+            </h3>
+            <div class="history-list" id="history-items">
+              <p class="empty-state">No saved snippets yet. Click "Save" to keep text clips.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Chat View -->
+        <div class="tab-content" id="tab-chat" style="display: none;">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i data-lucide="message-square" class="accent-text-blue"></i>
+              <h2>Room Chat Board</h2>
+            </div>
+            <span class="info-label">Real-time Local Messenger</span>
+          </div>
+
+          <div class="chat-container">
+            <div class="chat-messages" id="chat-messages-container">
+              <div class="chat-empty-state">
+                <i data-lucide="message-circle" class="chat-empty-icon"></i>
+                <p>No messages in this room yet.</p>
+                <span>Send a quick text, link, or note to others below!</span>
+              </div>
+            </div>
+            <div class="chat-input-bar">
+              <input type="text" id="chat-message-input" placeholder="Type a message to other devices...">
+              <button class="btn btn-primary" id="chat-send-btn" aria-label="Send message">
+                <i data-lucide="send"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Google AdSense Compliant Banner Ad (Infeed) -->
+        <div class="ad-placeholder ad-infeed">
+          <span class="ad-placeholder-text">Google AdSense Banner (In-feed)</span>
+          <span class="ad-placeholder-sub">Fits standard 300x250 Medium Rectangle</span>
+        </div>
+      </section>
+
+      <!-- Right Column: Shared Files -->
+      <section class="panel-section glass" id="files-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i data-lucide="folder-open" class="accent-text-purple"></i>
+            <h2>Shared Files</h2>
+          </div>
+          <span class="info-label" id="expiry-notice">Files expire in 15 mins</span>
+        </div>
+
+        <!-- Drag & Drop Zone -->
+        <div class="dropzone" id="file-dropzone">
+          <input type="file" id="file-input" multiple style="display: none;">
+          <div class="dropzone-content">
+            <div class="dropzone-icon-wrapper">
+              <i data-lucide="cloud-upload" class="dropzone-icon"></i>
+            </div>
+            <h3>Drag & Drop Files Here</h3>
+            <p>or click to browse your device (Max 100MB per file)</p>
+          </div>
+        </div>
+
+        <!-- File Upload Options (Self-destruct and Camera Capture) -->
+        <div class="upload-options">
+          <label class="switch-container">
+            <input type="checkbox" id="self-destruct-toggle">
+            <span class="switch-slider"></span>
+            <span class="switch-label">Self-Destruct (Delete after first download)</span>
+          </label>
+          
+          <button class="btn btn-secondary btn-sm" id="camera-capture-btn">
+            <i data-lucide="camera"></i>
+            <span>Camera Photo</span>
+          </button>
+          <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
+        </div>
+
+        <!-- Upload Progress Area -->
+        <div class="upload-progress-container" id="upload-progress-container" style="display: none;">
+          <div class="upload-progress-header">
+            <h4>Uploading <span id="upload-count">0</span> file(s)...</h4>
+            <span id="upload-total-progress">0%</span>
+          </div>
+          <div class="upload-progress-list" id="upload-progress-list">
+            <!-- Individual progress lines -->
+          </div>
+        </div>
+
+        <!-- Files Grid/List -->
+        <div class="files-container">
+          <div class="files-header">
+            <h3 class="subsection-title">
+              <i data-lucide="files"></i>
+              <span>Shared Space</span>
+            </h3>
+            <button class="btn btn-link btn-sm" id="refresh-files-btn" title="Refresh files list">
+              <i data-lucide="refresh-cw"></i>
+            </button>
+          </div>
+          <div class="files-grid" id="files-grid">
+            <div class="empty-state">
+              <i data-lucide="file-question" class="empty-icon"></i>
+              <p>No files shared yet</p>
+              <span>Drag files above or scan the QR code with another device to start sharing!</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- How It Works Section -->
+  <section class="section-padding" id="how-it-works">
+    <div class="section-header">
+      <h2>How It <span>Works</span></h2>
+      <p>DropBeam operates over your local network interfaces, providing swift browser-to-browser transfers.</p>
+    </div>
+    <div class="steps-container">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3>Connect on Wi-Fi</h3>
+        <p>Ensure all devices you want to share with are connected to the exact same Wi-Fi or local network.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3>Open DropBeam</h3>
+        <p>Go to the sharing link or scan the QR Code on your mobile to load the dashboard in your room.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h3>Sync & Drop</h3>
+        <p>Paste text inside the Live Clipboard or drop your files. Other connected devices see them instantly!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="section-padding glass-dark" style="border-radius: var(--border-radius-lg);" id="features">
+    <div class="section-header">
+      <h2>Core <span>Features</span></h2>
+      <p>Engineered for speed, security, and universal device support.</p>
+    </div>
+    <div class="grid-3">
+      <div class="feature-card glass">
+        <div class="feature-icon-box"><i data-lucide="zap"></i></div>
+        <h3>WebSocket Live Sync</h3>
+        <p>Updates occur in real-time. No manual browser reloading is ever required to fetch text clips or file drops.</p>
+      </div>
+      <div class="feature-card glass">
+        <div class="feature-icon-box"><i data-lucide="lock"></i></div>
+        <h3>Private Room Codes</h3>
+        <p>Switch from the public sharing board. Lock your room with passcodes to secure critical files from neighbors.</p>
+      </div>
+      <div class="feature-card glass">
+        <div class="feature-icon-box"><i data-lucide="trash-2"></i></div>
+        <h3>15-min Expire Timer</h3>
+        <p>Files are cached temporarily in local storage and deleted forever after 15 minutes, preserving your privacy.</p>
+      </div>
+      <div class="feature-card glass">
+        <div class="feature-icon-box"><i data-lucide="flame"></i></div>
+        <h3>Self-Destruct Downloads</h3>
+        <p>Enable self-destruct mode. Files are deleted from both the browser list and server disk immediately after download.</p>
+      </div>
+      <div class="feature-card glass">
+        <div class="feature-icon-box"><i data-lucide="laptop"></i></div>
+        <h3>Multi-Device Support</h3>
+        <p>Runs directly in modern web browsers. No app downloads are needed for iOS, Android, Windows, or Mac.</p>
+      </div>
+      <div class="feature-card glass">
+        <div class="feature-icon-box"><i data-lucide="message-square"></i></div>
+        <h3>Real-time Room Chat</h3>
+        <p>Send links, instructions, and messages to other devices in the same room using the integrated Chat board.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose DropBeam Section -->
+  <section class="section-padding">
+    <div class="section-header">
+      <h2>Why Choose <span>DropBeam</span>?</h2>
+      <p>Say goodbye to emailing files to yourself or setting up complex cloud backups.</p>
+    </div>
+    <div class="comparison-box glass">
+      <div class="comparison-text">
+        <h3>Cross-Platform WiFi Sharing</h3>
+        <p>
+          While AirDrop is limited to Apple devices, and Bluetooth transfers are slow and require tedious pairing, DropBeam provides high-speed, secure local file sharing for any browser-equipped device.
+        </p>
+        <div class="comparison-list">
+          <div class="comparison-item">
+            <i data-lucide="check-circle-2"></i>
+            <span><strong>Cross-Platform</strong>: Apple, Android, Windows, and Linux can share files instantly.</span>
+          </div>
+          <div class="comparison-item">
+            <i data-lucide="check-circle-2"></i>
+            <span><strong>No Configuration</strong>: No bluetooth pairing, network settings, or cloud keys needed.</span>
+          </div>
+          <div class="comparison-item">
+            <i data-lucide="check-circle-2"></i>
+            <span><strong>Ultra-Fast</strong>: Transfers run directly over your local Wi-Fi router, not limited by internet speeds.</span>
+          </div>
+        </div>
+      </div>
+      <div class="ad-placeholder ad-infeed" style="margin: 0;">
+        <span class="ad-placeholder-text">Google AdSense Native Block ad</span>
+        <span class="ad-placeholder-sub">Fits standard 336x280 Large Rectangle</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- User Safety & Data Protection Information -->
+  <section class="section-padding glass-dark" style="border-radius: var(--border-radius-lg);">
+    <div class="safety-layout">
+      <div class="safety-card glass">
+        <div class="logo">
+          <i data-lucide="shield-check" class="logo-icon accent-text-blue"></i>
+          <h3>Your Data Is Protected</h3>
+        </div>
+        <p>DropBeam is built on privacy-first design principles. We don't track your information or collect personal details.</p>
+        <div class="safety-grid">
+          <div class="safety-item">
+            <div class="safety-icon"><i data-lucide="database"></i></div>
+            <div class="safety-item-text">
+              <h4>No Database Storage</h4>
+              <p>Text snippets and files are held in temporary memory or sandbox storage. We never log your data permanently.</p>
+            </div>
+          </div>
+          <div class="safety-item">
+            <div class="safety-icon"><i data-lucide="clock"></i></div>
+            <div class="safety-item-text">
+              <h4>Strict Deletion Policies</h4>
+              <p>Once the 15-minute timer expires, files are completely unlinked from server records and physically deleted.</p>
+            </div>
+          </div>
+          <div class="safety-item">
+            <div class="safety-icon"><i data-lucide="network"></i></div>
+            <div class="safety-item-text">
+              <h4>Local Wi-Fi Encryption</h4>
+              <p>Files travel across your local router subnet, keeping your uploads secure from the public internet.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h2>Security & <span>User Safety</span></h2>
+        <p style="color: var(--text-secondary); line-height: 1.6; margin-top: 16px;">
+          All rooms (except custom passcoded ones) are isolated to devices that connect from the same Wi-Fi router subnet. This means external users cannot access your local sharing boards or intercept your files.
+        </p>
+        <p style="color: var(--text-secondary); line-height: 1.6; margin-top: 12px;">
+          To ensure maximum safety, always create a passcode-locked room when using public Wi-Fi networks in coffee shops, hotels, or airports.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Accordion Section -->
+  <section class="section-padding" id="faq">
+    <div class="section-header">
+      <h2>Frequently Asked <span>Questions</span></h2>
+      <p>Have questions about DropBeam? Find your answers here.</p>
+    </div>
+    <div class="faq-accordion">
+      <div class="faq-item">
+        <div class="faq-header">
+          <h3>Do I need to install any app to use DropBeam?</h3>
+          <i data-lucide="chevron-down" class="faq-icon-toggle"></i>
+        </div>
+        <div class="faq-content">
+          <div class="faq-body">
+            No app installation is required! DropBeam runs entirely in your web browser. Just open the local URL, share the link, or scan the QR Code on your mobile to connect instantly.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-header">
+          <h3>Is my file data secure?</h3>
+          <i data-lucide="chevron-down" class="faq-icon-toggle"></i>
+        </div>
+        <div class="faq-content">
+          <div class="faq-body">
+            Yes. DropBeam transmits your files locally over your Wi-Fi network interface. Uploaded files are stored in a temporary sandbox directory and automatically deleted after 15 minutes. For public Wi-Fi networks, you can password lock your rooms.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-header">
+          <h3>How long do files and text clips stay shared?</h3>
+          <i data-lucide="chevron-down" class="faq-icon-toggle"></i>
+        </div>
+        <div class="faq-content">
+          <div class="faq-body">
+            Files remain available for download for 15 minutes before they automatically expire and are purged from disk. You can also enable "Self-Destruct" to delete them immediately after the first download. Live Clipboard text stays active until overwritten or manually cleared.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-header">
+          <h3>What is the maximum file size limit?</h3>
+          <i data-lucide="chevron-down" class="faq-icon-toggle"></i>
+        </div>
+        <div class="faq-content">
+          <div class="faq-body">
+            The default upload limit is set to 100MB per file upload. You can share multiple files concurrently.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-header">
+          <h3>Does DropBeam require internet access?</h3>
+          <i data-lucide="chevron-down" class="faq-icon-toggle"></i>
+        </div>
+        <div class="faq-content">
+          <div class="faq-body">
+            No internet access is required for local network transfers! As long as all devices are connected to the same Wi-Fi router, they can communicate locally. Internet access is only required to load external assets like font files and icons.
+          </div>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-header">
+          <h3>Is DropBeam free to use?</h3>
+          <i data-lucide="chevron-down" class="faq-icon-toggle"></i>
+        </div>
+        <div class="faq-content">
+          <div class="faq-body">
+            Yes, DropBeam is 100% free. We use non-intrusive, compliant Google AdSense advertisement banners to help fund our hosting and local server development.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bottom Call to Action Section -->
+  <section class="section-padding">
+    <div class="cta-layout">
+      <div class="cta-card glass">
+        <h2>Start Sharing Instantly</h2>
+        <p>Connect your devices to the same network, scroll back to the sharing board, and share your first file or message now.</p>
+        <a href="#sharing-app" class="btn btn-primary">
+          <i data-lucide="zap"></i>
+          <span>Launch Share Dashboard</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Google AdSense Compliant Banner Ad (Bottom) -->
+  <div class="ad-placeholder ad-leaderboard">
+    <span class="ad-placeholder-text">Google AdSense - Compliant Bottom Banner Ad</span>
+    <span class="ad-placeholder-sub">Fits standard 728x90 or 970x90 Leaderboard</span>
+  </div>
+
+  <!-- Modern Footer -->
+  <footer class="app-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <a href="/" class="nav-logo" style="margin-bottom: 12px;">
+          <i data-lucide="radio" class="logo-icon"></i>
+          <span>DropBeam</span>
+        </a>
+        <p>DropBeam is a premium local-network sharing utility that allows instant, browser-to-browser transfers of files and clips. Developed by Bilal Faisal Arain.</p>
+        <div class="social-links">
+          <a href="mailto:bilaifaisalarain@gmail.com" aria-label="Email Bilal Faisal Arain"><i data-lucide="mail"></i></a>
+          <a href="https://github.com/bilaifaisaldev" target="_blank" aria-label="Explore source code on GitHub"><i data-lucide="github"></i></a>
+          <a href="https://instagram.com/bilal.faisalarain" target="_blank" aria-label="Follow on Instagram"><i data-lucide="instagram"></i></a>
+        </div>
+        <div class="developer-info" style="margin-top: 16px; font-size: 13px; color: var(--text-secondary); border-top: 1px solid var(--glass-border); padding-top: 12px;">
+          <strong>👤 Author:</strong> Bilal Faisal Arain<br>
+          <span style="font-size:12px; color:var(--text-muted);">Full Stack Developer & QA Tester | Karachi, Pakistan 🇵🇰</span>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="/">Home Dashboard</a></li>
+          <li><a href="#how-it-works">How It Works</a></li>
+          <li><a href="#features">Core Features</a></li>
+          <li><a href="#faq">FAQs</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h3>Legal Links</h3>
+        <ul>
+          <li><a href="/privacy.html">Privacy Policy</a></li>
+          <li><a href="/terms.html">Terms & Conditions</a></li>
+          <li><a href="/disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h3>Contact Us</h3>
+        <p style="margin-bottom: 8px;">For support, inquiries, or feedback, feel free to email our team:</p>
+        <ul>
+          <li><a href="mailto:support@dropbeam.com" style="color: var(--accent-blue);"><i data-lucide="mail" class="icon-sm" style="display:inline-block; vertical-align: middle; margin-right: 4px;"></i>support@dropbeam.com</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 DropBeam. All rights reserved. Made for instant local Wi-Fi transfers.</p>
+      <div class="footer-legal-links">
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/disclaimer.html">Disclaimer</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- QR Code Modal -->
+  <div class="modal-overlay" id="qr-modal">
+    <div class="modal glass-dark">
+      <div class="modal-header">
+        <h3>Connect Another Device</h3>
+        <button class="btn-close" id="close-qr-btn" aria-label="Close modal">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Scan this QR code from your phone, tablet, or another laptop on the <strong>same Wi-Fi network</strong> to start sharing instantly.</p>
+        <div class="qr-code-wrapper">
+          <canvas id="qr-canvas"></canvas>
+        </div>
+        <div class="qr-address-box">
+          <code id="qr-url-text">http://192.168.1.XX:3000</code>
+          <button class="btn btn-secondary btn-sm" id="copy-qr-url-btn" aria-label="Copy connection URL">
+            <i data-lucide="copy"></i>
+            <span>Copy</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Room Switcher Modal -->
+  <div class="modal-overlay" id="room-modal">
+    <div class="modal glass-dark">
+      <div class="modal-header">
+        <h3>Switch Room</h3>
+        <button class="btn-close" id="close-room-btn" aria-label="Close modal">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Enter a room name to join or create. You can lock your room with a passcode for secure private sharing.</p>
+        <form id="room-switch-form" class="room-form">
+          <div class="form-group">
+            <label for="room-id-input">Room ID:</label>
+            <input type="text" id="room-id-input" placeholder="e.g. public, office, team-share" required>
+          </div>
+          <div class="form-group">
+            <label for="room-passcode-input">Passcode (Optional):</label>
+            <input type="password" id="room-passcode-input" placeholder="Leave empty for open public room">
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="room-submit-btn">Join / Create Room</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- In-Browser Media Player Modal -->
+  <div class="modal-overlay" id="media-modal">
+    <div class="modal media-modal glass-dark">
+      <div class="modal-header">
+        <h3 id="media-title">Media Preview</h3>
+        <button class="btn-close" id="close-media-btn" aria-label="Close modal">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body media-body">
+        <div id="media-viewer-container">
+          <!-- Dynamic media components (img, video, audio) -->
+        </div>
+        <div class="media-meta">
+          <span id="media-filename">file.mp4</span>
+          <a href="" id="media-download-link" class="btn btn-primary btn-sm" download>
+            <i data-lucide="download"></i>
+            <span>Download File</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Cookie Consent Notice -->
+  <div class="cookie-banner glass-dark" id="cookie-banner">
+    <div class="cookie-content">
+      <i data-lucide="cookie"></i>
+      <p>We use cookies to remember your room configurations, theme preferences, and sound volume states. By using DropBeam, you consent to our <a href="/privacy.html">Privacy Policy</a>.</p>
+    </div>
+    <div class="cookie-actions">
+      <button class="btn btn-primary btn-sm" id="accept-cookies-btn">Got It</button>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Audio elements for sound effects -->
+  <audio id="sound-success" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-84.wav" preload="auto"></audio>
+  <audio id="sound-connect" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-84.wav" preload="auto"></audio>
+
+  <script src="app.js"></script>
+</body>
+</html>
