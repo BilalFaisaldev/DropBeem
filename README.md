@@ -143,7 +143,7 @@ Feel free to fork the repository, create a new branch, and submit a Pull Request
 
 For questions, suggestions, or business inquiries:
 
-Email: your-email@example.com
+Email: bilalfaisalarain@gmail.com
 
 ---
 
