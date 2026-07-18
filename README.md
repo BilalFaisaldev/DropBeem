@@ -52,7 +52,8 @@ DropBeam/
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/dropbeam.git
+git clone https://github.com/DropBeem/dropbeam.git
+
 
 ```
 
